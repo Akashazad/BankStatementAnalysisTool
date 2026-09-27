@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Statement Ledger — HDFC spend dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+  :root{
+    --paper:#EDE8DA; --paper-deep:#E3DCC9; --line:#CBBFA5;
+    --ink:#1F2A44; --ink-soft:#5B6178; --rust:#A63A2C; --forest:#2F5233; --gold:#8A6A24;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:'IBM Plex Sans',Arial,sans-serif;line-height:1.5;}
+  .wrap{max-width:980px;margin:0 auto;padding:32px 20px 80px;}
+  h1,h2{font-family:'Roboto Slab',Georgia,serif;font-weight:700;margin:0;}
+  header.top{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;flex-wrap:wrap;border-bottom:2px solid var(--ink);padding-bottom:20px;margin-bottom:28px;}
+  header.top h1{font-size:1.9rem;letter-spacing:.2px;}
+  header.top p{margin:6px 0 0;color:var(--ink-soft);max-width:44ch;}
+  .stamp{border:2px solid var(--rust);color:var(--rust);font-family:'IBM Plex Mono',monospace;font-size:.68rem;font-weight:600;padding:8px 12px;border-radius:50%;width:104px;height:104px;display:flex;align-items:center;justify-content:center;text-align:center;transform:rotate(-9deg);line-height:1.25;flex-shrink:0;}
+
+  #dropzone{border:2px dashed var(--line);border-radius:6px;padding:36px 20px;text-align:center;cursor:pointer;transition:border-color .15s, background .15s;background:var(--paper-deep);}
+  #dropzone.drag{border-color:var(--rust);background:#EADFCB;}
+  #dropzone .big{font-family:'Roboto Slab',serif;font-size:1.05rem;margin:4px 0;}
+  #dropzone .small{color:var(--ink-soft);font-size:.85rem;margin:4px 0;}
+  #fileInput{display:none;}
+
+  #fileBar{display:none;justify-content:space-between;align-items:center;background:var(--paper-deep);border:1px solid var(--line);border-radius:6px;padding:10px 16px;margin-bottom:24px;font-size:.9rem;}
+  #fileBar a{color:var(--rust);cursor:pointer;text-decoration:underline;}
+
+  #error{display:none;background:#F4E6E1;border:1px solid var(--rust);color:var(--rust);padding:14px 16px;border-radius:6px;margin-bottom:20px;font-size:.92rem;}
+
+  #dashboard{display:none;}
+
+  .filter-bar{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:22px;}
+  .meta-line{color:var(--ink-soft);font-size:.88rem;}
+  .filter-bar label{font-size:.82rem;color:var(--ink-soft);margin-right:8px;}
+  #monthFilter{padding:8px 12px;border:1px solid var(--line);border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:.85rem;background:#fff;}
+
+  .stats{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px;}
+  .stat{border:1px solid var(--line);border-radius:6px;padding:14px 14px;background:var(--paper-deep);}
+  .stat .label{font-size:.75rem;color:var(--ink-soft);margin-bottom:6px;}
+  .stat .value{font-family:'IBM Plex Mono',monospace;font-size:1.15rem;font-weight:600;}
+  .stat .value.pos{color:var(--forest);}
+  .stat .value.neg{color:var(--rust);}
+  .stat .delta{font-size:.72rem;margin-top:4px;color:var(--ink-soft);}
+  .stat .delta.up{color:var(--rust);}
+  .stat .delta.down{color:var(--forest);}
+
+  .callout{border:1px solid var(--gold);background:#F1E8D2;border-radius:6px;padding:14px 18px;margin-bottom:32px;display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;}
+  .callout .label{font-size:.78rem;color:var(--ink-soft);margin-bottom:3px;}
+  .callout .cat{font-family:'Roboto Slab',serif;font-size:1.1rem;}
+  .callout .amt{font-family:'IBM Plex Mono',monospace;font-size:1.1rem;font-weight:600;color:var(--gold);}
+
+  section{margin-bottom:40px;}
+  section h2{font-size:1.15rem;margin-bottom:4px;padding-bottom:8px;border-bottom:1px solid var(--line);}
+  section .sub{font-size:.8rem;color:var(--ink-soft);margin:6px 0 14px;}
+
+  .cat-block{border-bottom:1px solid transparent;}
+  .cat-row{display:flex;align-items:baseline;gap:10px;padding:7px 0;cursor:pointer;user-select:none;}
+  .cat-row .chev{font-size:.7rem;color:var(--ink-soft);width:12px;transition:transform .15s;flex-shrink:0;}
+  .cat-block.open .cat-row .chev{transform:rotate(90deg);}
+  .cat-row .name{font-family:'Roboto Slab',serif;font-size:.94rem;white-space:nowrap;}
+  .cat-row .leader{flex:1;border-bottom:1px dotted var(--line);transform:translateY(-4px);}
+  .cat-row .amt{font-family:'IBM Plex Mono',monospace;font-size:.94rem;white-space:nowrap;}
+  .cat-row .pct{font-family:'IBM Plex Mono',monospace;font-size:.75rem;color:var(--ink-soft);width:42px;text-align:right;}
+  .cat-bar{height:4px;background:var(--line);border-radius:2px;margin:0 0 4px;overflow:hidden;}
+  .cat-bar span{display:block;height:100%;background:var(--rust);}
+  .cat-detail{display:none;padding:2px 0 14px 22px;border-bottom:1px solid var(--line);}
+  .cat-block.open .cat-detail{display:block;}
+  .cat-detail .drow{display:flex;justify-content:space-between;gap:14px;padding:4px 0;font-size:.83rem;border-bottom:1px dotted var(--line);}
+  .cat-detail .drow:last-child{border-bottom:none;}
+  .cat-detail .dnarr{color:var(--ink-soft);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .cat-detail .damt{font-family:'IBM Plex Mono',monospace;flex-shrink:0;}
+  .cat-detail .ddate{font-family:'IBM Plex Mono',monospace;color:var(--ink-soft);flex-shrink:0;width:80px;}
+
+  canvas{max-width:100%;}
+
+  .table-controls{display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap;}
+  #search{flex:1;min-width:180px;padding:8px 10px;border:1px solid var(--line);border-radius:4px;font-family:inherit;background:#fff;}
+  select{padding:8px 10px;border:1px solid var(--line);border-radius:4px;font-family:inherit;background:#fff;}
+  .tbl-wrap{max-height:420px;overflow:auto;border:1px solid var(--line);border-radius:6px;}
+  table{width:100%;border-collapse:collapse;font-size:.85rem;}
+  th{position:sticky;top:0;background:var(--ink);color:var(--paper);text-align:left;padding:8px 10px;font-weight:500;cursor:pointer;}
+  td{padding:7px 10px;border-bottom:1px solid var(--line);}
+  td.amt,th.amt{font-family:'IBM Plex Mono',monospace;text-align:right;white-space:nowrap;}
+  tr:nth-child(even) td{background:#F4F0E4;}
+  .cat-tag{font-size:.72rem;padding:2px 7px;border-radius:10px;background:var(--paper-deep);border:1px solid var(--line);white-space:nowrap;}
+
+  footer{color:var(--ink-soft);font-size:.8rem;text-align:center;margin-top:50px;}
+  @media(max-width:720px){.stats{grid-template-columns:repeat(2,1fr);}}
+  @media(max-width:640px){header.top{flex-direction:column;} .stamp{align-self:flex-start;}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div>
+      <h1>Statement Ledger</h1>
+      <p>Drop in an HDFC net-banking statement export and get an instant spend breakdown — categories, monthly trend, and the raw entries, all worked out on this page.</p>
+    </div>
+    <div class="stamp">PROCESSED<br>LOCALLY<br>· NOTHING<br>UPLOADED</div>
+  </header>
+
+  <div id="dropzone">
+    <p class="big">Drop your statement here, or click to choose a file</p>
+    <p class="small">Accepts the .xls / .xlsx export from HDFC NetBanking. Parsing happens entirely in your browser — the file never leaves this device.</p>
+    <input type="file" id="fileInput" accept=".xls,.xlsx">
+  </div>
+
+  <div id="fileBar">
+    <span id="fileName"></span>
+    <a id="loadAnother">Load a different file</a>
+  </div>
+
+  <div id="error"></div>
+
+  <div id="dashboard">
+    <div class="filter-bar">
+      <span class="meta-line" id="metaLine"></span>
+      <div><label for="monthFilter">View</label><select id="monthFilter"></select></div>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="label">Money in</div><div class="value pos" id="statIn">—</div></div>
+      <div class="stat"><div class="label">Spent (excl. investing)</div><div class="value neg" id="statOut">—</div><div class="delta" id="statOutDelta"></div></div>
+      <div class="stat"><div class="label">Invested</div><div class="value" id="statInvest" style="color:var(--gold)">—</div></div>
+      <div class="stat"><div class="label">Net position</div><div class="value" id="statNet">—</div></div>
+      <div class="stat"><div class="label">Savings rate</div><div class="value" id="statRate">—</div></div>
+    </div>
+
+    <div class="callout" id="topCatCallout">
+      <div><div class="label">Biggest spending category, this view</div><div class="cat" id="topCatName">—</div></div>
+      <div class="amt" id="topCatAmt">—</div>
+    </div>
+
+    <section>
+      <h2>Income vs. expenditure by month</h2>
+      <p class="sub">Investing is excluded from "expenditure" here — see the investment chart below. Use the "View" filter above to isolate a single month everywhere on this page.</p>
+      <canvas id="monthChart" height="90"></canvas>
+    </section>
+
+    <section>
+      <h2>Investment trend</h2>
+      <p class="sub">Money moved into mutual funds / SIPs / brokers each month, kept separate from everyday spend. Follows the "View" filter above.</p>
+      <canvas id="investChart" height="70"></canvas>
+    </section>
+
+    <section>
+      <h2>Category trend analysis</h2>
+      <p class="sub">How your top 5 spending categories (by overall total) have moved month to month. Follows the "View" filter above.</p>
+      <canvas id="trendChart" height="90"></canvas>
+    </section>
+
+    <section>
+      <h2>Where the money went</h2>
+      <p class="sub">Click a category to see the individual entries behind it.</p>
+      <div id="categoryLedger"></div>
+    </section>
+
+    <section>
+      <h2>All entries</h2>
+      <div class="table-controls">
+        <input id="search" type="text" placeholder="Search narration or category…">
+        <select id="filterType"><option value="all">All entries</option><option value="out">Money out</option><option value="in">Money in</option></select>
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr>
+            <th data-k="date">Date</th><th data-k="narration">Narration</th><th data-k="category">Category</th>
+            <th class="amt" data-k="withdrawal">Out (₹)</th><th class="amt" data-k="deposit">In (₹)</th>
+          </tr></thead>
+          <tbody id="tblBody"></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <footer>Runs fully client-side using SheetJS and Chart.js loaded from a CDN. No transaction data is stored or transmitted.</footer>
+</div>
+
+<script>
+const INVEST_CAT = 'Investments / mutual funds';
+
+// ---- Editable name lists: add more names here as you spot them in your statement ----
+const FAMILY_NAMES = ['AKSHAT','ASHIMA','ANJALI'];               // only these count as "Family"
+const FCC_COLLECTION_NAMES = ['AMOL','HARSHIT','ROHAN','ROHIT','HIMANSHU','SHIKHAR','SHREYAS']; // FCC monthly collection senders
+const FCC_COLLECTION_AMOUNT = 1000; // amount that identifies an FCC collection payment
+
+const EXPENSE_RULES = [
+  [INVEST_CAT, ['NSEINVEST','NSECLEARING','MFSS','MUTUAL FU','PPFAS','ZERODAH','SIPINDIA']],
+  ['School canteen (kids)', ['FOOD CRAFT COMPANY']],
+  ['Family transfers', FAMILY_NAMES],
+  ['Insurance', ['POLICYBAZAAR','INSURANCE',' LIC ']],
+  ['Tax payment', ['CBDT']],
+  ['Rent', ['RENT']],
+  ['Credit card bill', ['BILLPAY','CCBILLPAYMENT','CREDIT CARD']],
+  ['Sports & fitness', ['BADMINTON','PLAYO','DECATHLON','KHELOMORE']],
+  ['Food & dining', ['HUNGERBOX','SWEETS','BAKERY','CHICKEN','VADAPAV','BHEL','CHAI','ZOMATO','SWIGGY','RESTAURANT']],
+  ['Groceries', ['MILKBASKET','VEGITABLE','VEGETABLE','GROCER','DMART','BIGBASKET','SUPER MARKET']],
+  ['Medical / health', ['MEDICO','DENTAL','HOSPITAL','PHARMA','CLINIC','DIAGNOSTIC']],
+  ['Fuel', ['PETROLEUM','PETROL','FUEL']],
+  ['Shopping', ['AMAZON','WESTSIDE','MYNTRA','FLIPKART','RELIANCE RETAIL']],
+  ['Household services', ['NOBROKER']],
+  ['Cash withdrawal', ['ATM','CASH WDL']],
+  ['Travel', ['IRCTC','RAILWAY','UBER','OLA','MAKEMYTRIP','IXIGO']],
+];
+const INCOME_RULES = [
+  ['Medical reimbursement', ['NEW INDIA ASSURANCE']],
+  ['Salary', ['SALARY']],
+  ['Rent received', ['RENT']],
+  ['Investment redemption', ['MUTUAL FUND REDEMPTION','MFSS SETTLEMENT','NSE CLEARING']],
+  ['Family', FAMILY_NAMES],
+];
+function classify(narr, rules, fallback){
+  const n = narr.toUpperCase();
+  for (const [label, keys] of rules) if (keys.some(k=>n.includes(k))) return label;
+  return fallback;
+}
+function categorizeExpense(n){ return classify(n, EXPENSE_RULES, n.toUpperCase().startsWith('UPI-') ? 'Other UPI / personal' : (n.toUpperCase().startsWith('POS ') ? 'Card / POS spend' : 'Other')); }
+function categorizeIncome(n, amount){
+  const upper = n.toUpperCase();
+  // Special case checked first: fixed-amount collection from specific names
+  if (Math.abs(amount - FCC_COLLECTION_AMOUNT) < 0.5 && FCC_COLLECTION_NAMES.some(name=>upper.includes(name))){
+    return 'FCC monthly collection';
+  }
+  return classify(n, INCOME_RULES, 'Other credit');
+}
+
+function fmtINR(n){
+  const neg = n<0; n = Math.abs(n);
+  let s = n.toFixed(2);
+  let [int, dec] = s.split('.');
+  let last3 = int.slice(-3), rest = int.slice(0,-3);
+  rest = rest.replace(/\B(?=(\d{2})+(?!\d))/g, ',');
+  return (neg?'-':'') + '₹' + (rest?rest+',':'') + last3 + '.' + dec;
+}
+function parseAmount(v){
+  if (v===undefined||v===null||v==='') return 0;
+  if (typeof v==='number') return v;
+  const f = parseFloat(String(v).replace(/,/g,''));
+  return isNaN(f) ? 0 : f;
+}
+function parseDate(v){
+  if (typeof v==='number'){ const d = XLSX.SSF.parse_date_code(v); return new Date(d.y,d.m-1,d.d); }
+  const m = String(v).trim().match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/);
+  if (!m) return null;
+  let [_,dd,mm,yy] = m; yy = yy.length===2 ? (2000+ +yy) : +yy;
+  return new Date(yy, +mm-1, +dd);
+}
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function monthKey(d){ return `${MONTHS[d.getMonth()]} ${d.getFullYear()}`; }
+
+let ROWS = [];
+let monthChartRef=null, investChartRef=null, trendChartRef=null;
+
+function findHeaderRow(aoa){
+  for (let i=0;i<aoa.length;i++){
+    const rowStr = aoa[i].map(c=>String(c||'').toUpperCase()).join('|');
+    if (rowStr.includes('NARRATION') && rowStr.includes('WITHDRAWAL')) return i;
+  }
+  return -1;
+}
+function colIndex(headerRow, keyword){
+  return headerRow.findIndex(c=>String(c||'').toUpperCase().includes(keyword));
+}
+function parseWorkbook(wb){
+  const sheet = wb.Sheets[wb.SheetNames[0]];
+  const aoa = XLSX.utils.sheet_to_json(sheet, {header:1, defval:''});
+  const hIdx = findHeaderRow(aoa);
+  if (hIdx===-1) throw new Error('NOHEADER');
+  const header = aoa[hIdx];
+  const cDate = colIndex(header,'DATE'), cNarr = colIndex(header,'NARRATION'),
+        cWd = colIndex(header,'WITHDRAWAL'), cDep = colIndex(header,'DEPOSIT');
+  const rows = [];
+  for (let i=hIdx+1;i<aoa.length;i++){
+    const r = aoa[i];
+    if (!r || r.length===0) continue;
+    const d = parseDate(r[cDate]);
+    if (!d){ if (rows.length>0) break; continue; }
+    const narration = String(r[cNarr]||'').trim();
+    const withdrawal = parseAmount(r[cWd]);
+    const deposit = parseAmount(r[cDep]);
+    if (!narration && withdrawal===0 && deposit===0) continue;
+    rows.push({date:d, narration, withdrawal, deposit,
+      category: withdrawal>0 ? categorizeExpense(narration) : (deposit>0 ? categorizeIncome(narration, deposit) : 'Other')});
+  }
+  if (rows.length===0) throw new Error('NOROWS');
+  return rows;
+}
+
+function allMonthKeysSorted(rows){
+  const set = new Set(rows.map(r=>monthKey(r.date)));
+  return [...set].sort((a,b)=>new Date('1 '+a)-new Date('1 '+b));
+}
+
+function currentFilter(){ return document.getElementById('monthFilter').value; }
+function filteredRows(){
+  const f = currentFilter();
+  return f==='all' ? ROWS : ROWS.filter(r=>monthKey(r.date)===f);
+}
+
+function renderStatsAndLedger(){
+  const rows = filteredRows();
+  const totalIn = rows.reduce((s,r)=>s+r.deposit,0);
+  const invested = rows.filter(r=>r.category===INVEST_CAT).reduce((s,r)=>s+r.withdrawal,0);
+  const spendRows = rows.filter(r=>r.withdrawal>0 && r.category!==INVEST_CAT);
+  const totalOut = spendRows.reduce((s,r)=>s+r.withdrawal,0);
+  const net = totalIn - totalOut - invested;
+  const rate = totalIn>0 ? (net/totalIn*100) : 0;
+
+  document.getElementById('statIn').textContent = fmtINR(totalIn);
+  document.getElementById('statOut').textContent = fmtINR(totalOut);
+  document.getElementById('statInvest').textContent = fmtINR(invested);
+  const netEl = document.getElementById('statNet');
+  netEl.textContent = fmtINR(net); netEl.className = 'value ' + (net>=0?'pos':'neg');
+  const rateEl = document.getElementById('statRate');
+  rateEl.textContent = rate.toFixed(1)+'%'; rateEl.className = 'value ' + (rate>=0?'pos':'neg');
+
+  // month-over-month delta on spend (excl investing)
+  const deltaEl = document.getElementById('statOutDelta');
+  const allKeys = allMonthKeysSorted(ROWS);
+  const f = currentFilter();
+  let curKey, prevKey;
+  if (f==='all'){ curKey = allKeys[allKeys.length-1]; prevKey = allKeys[allKeys.length-2]; }
+  else { const idx = allKeys.indexOf(f); curKey = f; prevKey = idx>0 ? allKeys[idx-1] : null; }
+  if (prevKey){
+    const curTotal = ROWS.filter(r=>monthKey(r.date)===curKey && r.withdrawal>0 && r.category!==INVEST_CAT).reduce((s,r)=>s+r.withdrawal,0);
+    const prevTotal = ROWS.filter(r=>monthKey(r.date)===prevKey && r.withdrawal>0 && r.category!==INVEST_CAT).reduce((s,r)=>s+r.withdrawal,0);
+    if (prevTotal>0){
+      const pct = ((curTotal-prevTotal)/prevTotal*100);
+      deltaEl.textContent = `${pct>=0?'▲':'▼'} ${Math.abs(pct).toFixed(0)}% vs ${prevKey}`;
+      deltaEl.className = 'delta ' + (pct>=0?'up':'down');
+    } else { deltaEl.textContent=''; }
+  } else { deltaEl.textContent = ''; }
+
+  const first = ROWS[0].date, last = ROWS[ROWS.length-1].date;
+  document.getElementById('metaLine').textContent =
+    `${ROWS.length} entries total · ${MONTHS[first.getMonth()]} ${first.getFullYear()} – ${MONTHS[last.getMonth()]} ${last.getFullYear()} · showing: ${f==='all'?'all months':f}`;
+
+  // category ledger, investment excluded — each row expands to show its transactions
+  const catTotals = {}, catTxns = {};
+  spendRows.forEach(r=>{
+    catTotals[r.category]=(catTotals[r.category]||0)+r.withdrawal;
+    (catTxns[r.category] = catTxns[r.category] || []).push(r);
+  });
+  const catList = Object.entries(catTotals).sort((a,b)=>b[1]-a[1]);
+  const maxCat = catList.length ? catList[0][1] : 1;
+  document.getElementById('categoryLedger').innerHTML = catList.map(([name,amt])=>{
+    const txns = catTxns[name].slice().sort((a,b)=>b.withdrawal-a.withdrawal);
+    const detail = txns.map(t=>`
+      <div class="drow"><span class="ddate">${t.date.toLocaleDateString('en-GB')}</span>
+        <span class="dnarr">${t.narration}</span><span class="damt">${fmtINR(t.withdrawal)}</span></div>`).join('');
+    return `
+    <div class="cat-block">
+      <div class="cat-row" onclick="this.closest('.cat-block').classList.toggle('open')">
+        <span class="chev">▸</span><span class="name">${name}</span><span class="leader"></span>
+        <span class="pct">${(amt/totalOut*100).toFixed(1)}%</span><span class="amt">${fmtINR(amt)}</span></div>
+      <div class="cat-bar"><span style="width:${(amt/maxCat*100).toFixed(1)}%"></span></div>
+      <div class="cat-detail">${detail}</div>
+    </div>`;
+  }).join('');
+
+  // top category callout
+  if (catList.length){
+    document.getElementById('topCatName').textContent = catList[0][0];
+    document.getElementById('topCatAmt').textContent = fmtINR(catList[0][1]) + ` (${(catList[0][1]/totalOut*100).toFixed(0)}% of spend)`;
+  } else {
+    document.getElementById('topCatName').textContent = 'No spending in this view';
+    document.getElementById('topCatAmt').textContent = '';
+  }
+
+  // month income/expense chart (respects filter; excludes investing from "out")
+  const keys = f==='all' ? allKeys : [f];
+  const mIn={}, mOut={};
+  keys.forEach(k=>{mIn[k]=0;mOut[k]=0;});
+  rows.forEach(r=>{
+    const k = monthKey(r.date);
+    if (!(k in mIn)) return;
+    mIn[k]+=r.deposit;
+    if (r.category!==INVEST_CAT) mOut[k]+=r.withdrawal;
+  });
+  if (monthChartRef) monthChartRef.destroy();
+  monthChartRef = new Chart(document.getElementById('monthChart'), {
+    type:'bar',
+    data:{ labels:keys, datasets:[
+      {label:'In', data:keys.map(k=>mIn[k]), backgroundColor:'#2F5233'},
+      {label:'Spent (excl. investing)', data:keys.map(k=>mOut[k]), backgroundColor:'#A63A2C'} ]},
+    options:{ responsive:true, plugins:{legend:{position:'bottom'}},
+      scales:{ y:{ ticks:{ callback:v=>'₹'+(v/1000).toFixed(0)+'k' } } } }
+  });
+
+  renderTable();
+}
+
+function renderInvestAndTrendCharts(){
+  const allKeys = allMonthKeysSorted(ROWS);
+  const f = currentFilter();
+  const keys = f==='all' ? allKeys : [f];          // respect the page-level month filter
+  const viewRows = ROWS.filter(r=>keys.includes(monthKey(r.date)));
+
+  const invByMonth = {}; keys.forEach(k=>invByMonth[k]=0);
+  viewRows.filter(r=>r.category===INVEST_CAT).forEach(r=>{ invByMonth[monthKey(r.date)]+=r.withdrawal; });
+  if (investChartRef) investChartRef.destroy();
+  investChartRef = new Chart(document.getElementById('investChart'), {
+    type:'line',
+    data:{ labels:keys, datasets:[{label:'Invested', data:keys.map(k=>invByMonth[k]), borderColor:'#8A6A24', backgroundColor:'rgba(138,106,36,.15)', fill:true, tension:.25}] },
+    options:{ responsive:true, plugins:{legend:{display:false}}, scales:{ y:{ ticks:{ callback:v=>'₹'+(v/1000).toFixed(0)+'k' } } } }
+  });
+
+  // top 5 non-investment categories overall (ranking stays stable), values shown only for the filtered months
+  const overallTotals = {};
+  ROWS.filter(r=>r.withdrawal>0 && r.category!==INVEST_CAT).forEach(r=>{ overallTotals[r.category]=(overallTotals[r.category]||0)+r.withdrawal; });
+  const topCats = Object.entries(overallTotals).sort((a,b)=>b[1]-a[1]).slice(0,5).map(e=>e[0]);
+  const palette = ['#A63A2C','#8A6A24','#2F5233','#4B5BA8','#8A3F6B'];
+  const byCM = {};
+  topCats.forEach(c=>{ byCM[c]={}; keys.forEach(k=>byCM[c][k]=0); });
+  viewRows.filter(r=>topCats.includes(r.category)).forEach(r=>{ byCM[r.category][monthKey(r.date)]+=r.withdrawal; });
+  if (trendChartRef) trendChartRef.destroy();
+  trendChartRef = new Chart(document.getElementById('trendChart'), {
+    type:'line',
+    data:{ labels:keys, datasets: topCats.map((c,i)=>({label:c, data:keys.map(k=>byCM[c][k]), borderColor:palette[i%palette.length], backgroundColor:'transparent', tension:.25})) },
+    options:{ responsive:true, plugins:{legend:{position:'bottom'}}, scales:{ y:{ ticks:{ callback:v=>'₹'+(v/1000).toFixed(0)+'k' } } } }
+  });
+}
+
+function populateMonthFilter(){
+  const sel = document.getElementById('monthFilter');
+  const keys = allMonthKeysSorted(ROWS);
+  sel.innerHTML = '<option value="all">All months</option>' + keys.map(k=>`<option value="${k}">${k}</option>`).join('');
+  sel.value='all';
+  sel.onchange = renderAll;
+}
+
+function renderAll(){
+  renderStatsAndLedger();
+  renderInvestAndTrendCharts();
+}
+
+function render(rows){
+  ROWS = rows.slice().sort((a,b)=>a.date-b.date);
+  populateMonthFilter();
+  renderAll();
+  document.getElementById('dashboard').style.display = 'block';
+}
+
+let sortKey='date', sortDir=1;
+function renderTable(){
+  const q = document.getElementById('search').value.toLowerCase();
+  const filt = document.getElementById('filterType').value;
+  let data = filteredRows().filter(r=>{
+    if (filt==='out' && r.withdrawal<=0) return false;
+    if (filt==='in' && r.deposit<=0) return false;
+    if (q && !(r.narration.toLowerCase().includes(q) || r.category.toLowerCase().includes(q))) return false;
+    return true;
+  });
+  data.sort((a,b)=>{
+    let va=a[sortKey], vb=b[sortKey];
+    if (sortKey==='date') return sortDir*(va-vb);
+    if (typeof va==='number') return sortDir*(va-vb);
+    return sortDir*String(va).localeCompare(String(vb));
+  });
+  document.getElementById('tblBody').innerHTML = data.map(r=>`
+    <tr><td>${r.date.toLocaleDateString('en-GB')}</td><td>${r.narration}</td>
+      <td><span class="cat-tag">${r.category}</span></td>
+      <td class="amt">${r.withdrawal>0?fmtINR(r.withdrawal):''}</td>
+      <td class="amt">${r.deposit>0?fmtINR(r.deposit):''}</td></tr>`).join('');
+}
+document.getElementById('search').addEventListener('input', renderTable);
+document.getElementById('filterType').addEventListener('change', renderTable);
+document.querySelectorAll('th[data-k]').forEach(th=>th.addEventListener('click',()=>{
+  const k = th.dataset.k;
+  sortDir = (sortKey===k) ? -sortDir : 1; sortKey = k; renderTable();
+}));
+
+function showError(msg){
+  const el = document.getElementById('error');
+  el.textContent = msg; el.style.display='block';
+  document.getElementById('dashboard').style.display='none';
+}
+function handleFile(file){
+  document.getElementById('error').style.display='none';
+  const reader = new FileReader();
+  reader.onload = (e)=>{
+    try{
+      const wb = XLSX.read(new Uint8Array(e.target.result), {type:'array'});
+      const rows = parseWorkbook(wb);
+      document.getElementById('fileName').textContent = file.name;
+      document.getElementById('fileBar').style.display='flex';
+      document.getElementById('dropzone').style.display='none';
+      render(rows);
+    }catch(err){
+      showError(err.message==='NOHEADER'
+        ? "Couldn't find the transaction table in this file. Make sure it's an unmodified HDFC NetBanking statement export (.xls/.xlsx)."
+        : "Couldn't find any transaction rows to read. Check that the statement wasn't edited before exporting.");
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+const dz = document.getElementById('dropzone');
+const fi = document.getElementById('fileInput');
+dz.addEventListener('click', ()=>fi.click());
+fi.addEventListener('change', e=>{ if (e.target.files[0]) handleFile(e.target.files[0]); });
+['dragover','dragleave','drop'].forEach(evt=>dz.addEventListener(evt, e=>{
+  e.preventDefault();
+  dz.classList.toggle('drag', evt==='dragover');
+  if (evt==='drop' && e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+}));
+document.getElementById('loadAnother').addEventListener('click', ()=>{
+  document.getElementById('fileBar').style.display='none';
+  document.getElementById('dropzone').style.display='block';
+  document.getElementById('dashboard').style.display='none';
+  fi.value='';
+});
+</script>
+</body>
+</html>
