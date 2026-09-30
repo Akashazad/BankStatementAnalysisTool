@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -550,12 +550,6 @@
             </section>
 
             <section>
-                <h2>Where the money came from</h2>
-                <p class="sub">All credit entries grouped by category. Click a group to see the individual incoming transactions.</p>
-                <div id="creditLedger"></div>
-            </section>
-
-            <section>
                 <h2>All entries</h2>
                 <div class="table-controls">
                     <input id="search" type="text" placeholder="Search narration or category…">
@@ -584,35 +578,33 @@
     <script>
         const INVEST_CAT = 'Investments / mutual funds';
 
-// ---- Editable name lists: add more names here as you spot them in your statement ----
-        const FAMILY_NAMES = ['AKSHAT', 'ASHIMA', 'ANJALI', 'AZAD', 'DEEP','AKASH AZAD SHRIVASTAV-NETBANK'];               // only these count as "Family"
-        const FCC_COLLECTION_NAMES = ['AMOL', 'HARSHIT', 'ROHAN', 'ROHIT', 'HIMANSHU', 'SHIKHAR', 'SHREYAS', 'SHAH NIKET', 'DEEPAK KUMAR MEHTO', 'GHEEWALA DIVYANG', 'ARVIND SURESH PEDNEK', 'NISHANT KUMAR', 'SHOAIB SAUDAGAR', 'KINJAN KUMAR GINOYA','PANDYA KARAN']; // FCC monthly collection senders
+        // ---- Editable name lists: add more names here as you spot them in your statement ----
+        const FAMILY_NAMES = ['AKSHAT', 'ASHIMA', 'ANJALI'];               // only these count as "Family"
+        const FCC_COLLECTION_NAMES = ['AMOL', 'HARSHIT', 'ROHAN', 'ROHIT', 'HIMANSHU', 'SHIKHAR', 'SHREYAS']; // FCC monthly collection senders
         const FCC_COLLECTION_AMOUNT = 1000; // amount that identifies an FCC collection payment
 
         const EXPENSE_RULES = [
-            [INVEST_CAT, ['NSEINVEST', 'NSECLEARING', 'MFSS', 'MUTUAL FU', 'PPFAS', 'ZERODAH', 'SIPINDIA', 'MUTUAL', 'HDFC MU', 'HDFCMF', 'UTIMF', 'FRANKLIN','HDFC-SIP']],
+            [INVEST_CAT, ['NSEINVEST', 'NSECLEARING', 'MFSS', 'MUTUAL FU', 'PPFAS', 'ZERODAH', 'SIPINDIA', 'MUTUAL', 'HDFC MU', 'HDFCMF', 'UTIMF','FRANKLIN']],
             ['School canteen (kids)', ['FOOD CRAFT COMPANY']],
-            ['Family transfers', [FAMILY_NAMES, 'NET BANKING SI', 'IB FUNDS TRANSFER','NEW KIDS AC ASHIMA AKASH SHRIVASTAV']],
+            ['Family transfers', FAMILY_NAMES],
             ['Insurance', ['POLICYBAZAAR', 'INSURANCE', ' LIC ']],
-            ['Tax payment', ['CBDT','PCMC-PCMC']],
-            //['Rent', ['RENT']],
+            ['Tax payment', ['CBDT']],
+            ['Rent', ['RENT']],
             ['Credit card bill', ['BILLPAY', 'CCBILLPAYMENT', 'CREDIT CARD', 'ICICI BANK CREDIT CA']],
-            // Akshat-specific badminton costs: coaching, academy and tournament fees
-            ['Akshat Badminton', ['NIKHIL KANETKAR BADMINTON ACADEMY', 'AKSHAT ENTRY FEE', 'BADMINTON ACADEMY', 'AKSHAT TOURNAMENT', 'TOURNAMENT FEE','MAHARASHTRA STATE BA']],
-            ['Sports & fitness', ['BADMINTON', 'PLAYO', 'DECATHLON', 'KHELOMORE','MUNJ SACHIN SHARAD','FCC']],
+            ['Sports & fitness', ['BADMINTON', 'PLAYO', 'DECATHLON', 'KHELOMORE']],
             ['Food & dining', ['HUNGERBOX', 'SWEETS', 'BAKERY', 'CHICKEN', 'VADAPAV', 'BHEL', 'CHAI', 'ZOMATO', 'SWIGGY', 'RESTAURANT']],
             ['Groceries', ['MILKBASKET', 'VEGITABLE', 'VEGETABLE', 'GROCER', 'DMART', 'BIGBASKET', 'SUPER MARKET']],
-            ['Medical / health', ['MEDICO', 'DENTAL', 'HOSPITAL', 'PHARMA', 'CLINIC', 'DIAGNOSTIC','MAHESH JANARDHAN JAW']],
+            ['Medical / health', ['MEDICO', 'DENTAL', 'HOSPITAL', 'PHARMA', 'CLINIC', 'DIAGNOSTIC']],
             ['Fuel', ['PETROLEUM', 'PETROL', 'FUEL']],
-            ['Shopping', ['AMAZON', 'WESTSIDE', 'MYNTRA', 'FLIPKART', 'RELIANCE RETAIL', 'AJIO COM', 'VIJAY SALES', 'THENEWAHMEDABADSPORT','WESTSIDE UNIT']],
-            ['Society maintenance', ['NOBROKER']],
+            ['Shopping', ['AMAZON', 'WESTSIDE', 'MYNTRA', 'FLIPKART', 'RELIANCE RETAIL']],
+            ['Household services', ['NOBROKER']],
             ['Cash withdrawal', ['ATM', 'CASH WDL']],
-            ['Travel', ['IRCTC', 'RAILWAY', 'UBER', 'OLA', 'MAKEMYTRIP', 'IXIGO','SEA PRINCESS BEACH']],
+            ['Travel', ['IRCTC', 'RAILWAY', 'UBER', 'OLA', 'MAKEMYTRIP', 'IXIGO']],
         ];
         const INCOME_RULES = [
             ['Medical reimbursement', ['NEW INDIA ASSURANCE']],
             ['Salary', ['SALARY']],
-            ['Rent received', ['RENT','MOHD TABISH KHAN']],
+            ['Rent received', ['RENT']],
             ['Investment redemption', ['MUTUAL FUND REDEMPTION', 'MFSS SETTLEMENT', 'NSE CLEARING']],
             ['Family', FAMILY_NAMES],
         ];
@@ -775,20 +767,6 @@
                 document.getElementById('topCatName').textContent = 'No spending in this view';
                 document.getElementById('topCatAmt').textContent = '';
             }
-
-            // credit ledger: group all incoming (deposit) rows by category and render similarly
-            const creditTotals = {}, creditTxns = {};
-            rows.filter(r => r.deposit > 0).forEach(r => {
-                creditTotals[r.category] = (creditTotals[r.category] || 0) + r.deposit;
-                (creditTxns[r.category] = creditTxns[r.category] || []).push(r);
-            });
-            const creditList = Object.entries(creditTotals).sort((a, b) => b[1] - a[1]);
-            const maxCredit = creditList.length ? creditList[0][1] : 1;
-            document.getElementById('creditLedger').innerHTML = creditList.map(([name, amt]) => {
-                const txns = creditTxns[name].slice().sort((a, b) => b.deposit - a.deposit);
-                const detail = txns.map(t => `\n          <div class="drow"><span class="ddate">${t.date.toLocaleDateString('en-GB')}</span>\n            <span class="dnarr">${t.narration}</span><span class="damt">${fmtINR(t.deposit)}</span></div>`).join('');
-                return `\n        <div class="cat-block">\n          <div class="cat-row" onclick="this.closest('.cat-block').classList.toggle('open')">\n            <span class="chev">▸</span><span class="name">${name}</span><span class="leader"></span>\n            <span class="pct">${(amt / (totalIn || 1) * 100).toFixed(1)}%</span><span class="amt">${fmtINR(amt)}</span></div>\n          <div class="cat-bar"><span style="width:${(amt / maxCredit * 100).toFixed(1)}%"></span></div>\n          <div class="cat-detail">${detail}</div>\n        </div>`;
-            }).join('');
 
             // month income/expense chart (respects filter; excludes investing from "out")
             const keys = f === 'all' ? allKeys : [f];

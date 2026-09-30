@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -584,8 +584,8 @@
     <script>
         const INVEST_CAT = 'Investments / mutual funds';
 
-// ---- Editable name lists: add more names here as you spot them in your statement ----
-        const FAMILY_NAMES = ['AKSHAT', 'ASHIMA', 'ANJALI', 'AZAD', 'DEEP','AKASH AZAD SHRIVASTAV-NETBANK'];               // only these count as "Family"
+        // ---- Editable name lists: add more names here as you spot them in your statement ----
+        const FAMILY_NAMES = ['AKSHAT', 'ASHIMA', 'ANJALI', 'AZAD', 'DEEP','AKASH AZAD SHRIVASTAV'];               // only these count as "Family"
         const FCC_COLLECTION_NAMES = ['AMOL', 'HARSHIT', 'ROHAN', 'ROHIT', 'HIMANSHU', 'SHIKHAR', 'SHREYAS', 'SHAH NIKET', 'DEEPAK KUMAR MEHTO', 'GHEEWALA DIVYANG', 'ARVIND SURESH PEDNEK', 'NISHANT KUMAR', 'SHOAIB SAUDAGAR', 'KINJAN KUMAR GINOYA','PANDYA KARAN']; // FCC monthly collection senders
         const FCC_COLLECTION_AMOUNT = 1000; // amount that identifies an FCC collection payment
 
@@ -594,18 +594,18 @@
             ['School canteen (kids)', ['FOOD CRAFT COMPANY']],
             ['Family transfers', [FAMILY_NAMES, 'NET BANKING SI', 'IB FUNDS TRANSFER','NEW KIDS AC ASHIMA AKASH SHRIVASTAV']],
             ['Insurance', ['POLICYBAZAAR', 'INSURANCE', ' LIC ']],
-            ['Tax payment', ['CBDT','PCMC-PCMC']],
-            //['Rent', ['RENT']],
+            ['Tax payment', ['CBDT']],
+            ['Rent', ['RENT']],
             ['Credit card bill', ['BILLPAY', 'CCBILLPAYMENT', 'CREDIT CARD', 'ICICI BANK CREDIT CA']],
             // Akshat-specific badminton costs: coaching, academy and tournament fees
-            ['Akshat Badminton', ['NIKHIL KANETKAR BADMINTON ACADEMY', 'AKSHAT ENTRY FEE', 'BADMINTON ACADEMY', 'AKSHAT TOURNAMENT', 'TOURNAMENT FEE','MAHARASHTRA STATE BA']],
-            ['Sports & fitness', ['BADMINTON', 'PLAYO', 'DECATHLON', 'KHELOMORE','MUNJ SACHIN SHARAD','FCC']],
+            ['Akshat Badminton', ['NIKHIL KANETKAR BADMINTON ACADEMY', 'AKSHAT ENTRY FEE', 'BADMINTON ACADEMY', 'AKSHAT TOURNAMENT', 'TOURNAMENT FEE']],
+            ['Sports & fitness', ['BADMINTON', 'PLAYO', 'DECATHLON', 'KHELOMORE','MUNJ SACHIN SHARAD']],
             ['Food & dining', ['HUNGERBOX', 'SWEETS', 'BAKERY', 'CHICKEN', 'VADAPAV', 'BHEL', 'CHAI', 'ZOMATO', 'SWIGGY', 'RESTAURANT']],
             ['Groceries', ['MILKBASKET', 'VEGITABLE', 'VEGETABLE', 'GROCER', 'DMART', 'BIGBASKET', 'SUPER MARKET']],
             ['Medical / health', ['MEDICO', 'DENTAL', 'HOSPITAL', 'PHARMA', 'CLINIC', 'DIAGNOSTIC','MAHESH JANARDHAN JAW']],
             ['Fuel', ['PETROLEUM', 'PETROL', 'FUEL']],
-            ['Shopping', ['AMAZON', 'WESTSIDE', 'MYNTRA', 'FLIPKART', 'RELIANCE RETAIL', 'AJIO COM', 'VIJAY SALES', 'THENEWAHMEDABADSPORT','WESTSIDE UNIT']],
-            ['Society maintenance', ['NOBROKER']],
+            ['Shopping', ['AMAZON', 'WESTSIDE', 'MYNTRA', 'FLIPKART', 'RELIANCE RETAIL']],
+            ['Household services', ['NOBROKER']],
             ['Cash withdrawal', ['ATM', 'CASH WDL']],
             ['Travel', ['IRCTC', 'RAILWAY', 'UBER', 'OLA', 'MAKEMYTRIP', 'IXIGO','SEA PRINCESS BEACH']],
         ];
