@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -348,22 +348,6 @@
         .cat-block.open .cat-detail {
             display: block;
         }
-        .cat-block.collapsed .cat-detail {
-            display: none;
-        }
-        .cat-block.collapsed.open .cat-detail {
-            display: block;
-        }
-
-        /* nested cat-blocks (subcategories) styling for clearer hierarchy and collapsible behavior */
-        .cat-detail .cat-block {
-            margin: 8px 0;
-            padding-left: 10px;
-            border-left: 2px solid rgba(31,42,68,0.06);
-            border-bottom: none;
-        }
-        .cat-detail .cat-row { padding: 6px 0; }
-        .cat-detail .cat-row .name { font-size: .86rem; }
 
         .cat-detail .drow {
             display: flex;
@@ -616,20 +600,19 @@
             // Akshat-specific badminton costs: coaching, academy and tournament fees
             ['Akshat Badminton', ['NIKHIL KANETKAR BADMINTON ACADEMY', 'AKSHAT ENTRY FEE', 'BADMINTON ACADEMY', 'AKSHAT TOURNAMENT', 'TOURNAMENT FEE','MAHARASHTRA STATE BA']],
             ['Sports & fitness', ['BADMINTON', 'PLAYO', 'DECATHLON', 'KHELOMORE','MUNJ SACHIN SHARAD','FCC']],
-            // Food & Groceries parent category with subcategories
-            ['Food & Groceries / Food & dining', ['HUNGERBOX', 'SWEETS', 'BAKERY', 'CHICKEN', 'VADAPAV', 'BHEL', 'CHAI', 'ZOMATO', 'SWIGGY', 'RESTAURANT']],
-            ['Food & Groceries / Groceries', ['MILKBASKET', 'VEGITABLE', 'VEGETABLE', 'GROCER', 'DMART', 'BIGBASKET', 'SUPER MARKET']],
+            ['Food & dining', ['HUNGERBOX', 'SWEETS', 'BAKERY', 'CHICKEN', 'VADAPAV', 'BHEL', 'CHAI', 'ZOMATO', 'SWIGGY', 'RESTAURANT']],
+            ['Groceries', ['MILKBASKET', 'VEGITABLE', 'VEGETABLE', 'GROCER', 'DMART', 'BIGBASKET', 'SUPER MARKET']],
             ['Medical / health', ['MEDICO', 'DENTAL', 'HOSPITAL', 'PHARMA', 'CLINIC', 'DIAGNOSTIC','MAHESH JANARDHAN JAW']],
             // Transportation with subcategories
             ['Transportation / Fuel', ['PETROLEUM', 'PETROL', 'FUEL']],
-            ['Transportation / Cabs', ['UBER', 'OLA', 'CAB']],
+            ['Transportation / Cabs', ['UBER', 'OLA', 'MERU', 'AVIS', 'SUMPTER', 'CAB']],
             ['Transportation / Vehicle maintenance', ['SERVICE', 'CAR SERVICE', 'VEHICLE REPAIR', 'GARAGE', 'REPAIRS', 'VEHICLE MAINTENANCE']],
             ['Transportation / Parking', ['PARKING', 'CAR PARK']],
             ['Transportation / Tolls', ['TOLL', 'TOLL PLAZA', 'FASTAG']],
             ['Shopping', ['AMAZON', 'WESTSIDE', 'MYNTRA', 'FLIPKART', 'RELIANCE RETAIL', 'AJIO COM', 'VIJAY SALES', 'THENEWAHMEDABADSPORT','WESTSIDE UNIT']],
-            ['Society maintenance', ['UPI-NOBROKER TECHNOLOGIE']],
+            ['Society maintenance', ['NOBROKER']],
             ['Cash withdrawal', ['ATM', 'CASH WDL']],
-            ['Transportation / Travel', ['IRCTC', 'RAILWAY', 'MAKEMYTRIP', 'IXIGO','SEA PRINCESS BEACH']],
+            ['Travel', ['IRCTC', 'RAILWAY', 'MAKEMYTRIP', 'IXIGO','SEA PRINCESS BEACH']],
         ];
         const INCOME_RULES = [
             ['Medical reimbursement', ['NEW INDIA ASSURANCE']],
@@ -774,33 +757,20 @@
             });
             const catList = Object.entries(catTotals).sort((a, b) => b[1] - a[1]);
             const maxCat = catList.length ? catList[0][1] : 1;
-            // Render category ledger, grouping any parent/child categories (names with ' / ') under their parent
-            const addedParents = new Set();
-            const ledgerParts = [];
-            catList.forEach(([name, amt]) => {
-                const parts = name.split(' / ');
-                if (parts.length > 1) {
-                    const parent = parts[0];
-                    if (addedParents.has(parent)) return; // already rendered this parent and its children
-                    addedParents.add(parent);
-                    // collect children from catList that belong to this parent
-                    const children = catList.filter(c => c[0].startsWith(parent + ' / ')).map(([cn, ca]) => ({ name: cn, amt: ca }));
-                    const parentTotal = children.reduce((s, c) => s + c.amt, 0);
-                    const childHtml = children.map(c => {
-                        const txns = (catTxns[c.name] || []).slice().sort((a, b) => b.withdrawal - a.withdrawal);
-                        const detail = txns.map(t => `\n            <div class="drow"><span class="ddate">${t.date.toLocaleDateString('en-GB')}</span>\n              <span class="dnarr">${t.narration}</span><span class="damt">${fmtINR(t.withdrawal)}</span></div>`).join('');
-                        // render child subcategory collapsed by default (adds 'collapsed' class)
-                        return `\n          <div class="cat-block collapsed">\n            <div class="cat-row" onclick="this.closest('.cat-block').classList.toggle('open')">\n              <span class="chev">▸</span><span class="name">${c.name.replace(parent + ' / ', '')}</span><span class="leader"></span>\n              <span class="pct">${(c.amt / totalOut * 100).toFixed(1)}%</span><span class="amt">${fmtINR(c.amt)}</span></div>\n            <div class="cat-bar"><span style="width:${(c.amt / maxCat * 100).toFixed(1)}%"></span></div>\n            <div class="cat-detail">${detail}</div>\n          </div>`;
-                    }).join('');
-                    ledgerParts.push(`\n        <div class="cat-block">\n          <div class="cat-row" onclick="this.closest('.cat-block').classList.toggle('open')">\n            <span class="chev">▸</span><span class="name">${parent}</span><span class="leader"></span>\n            <span class="pct">${(parentTotal / totalOut * 100).toFixed(1)}%</span><span class="amt">${fmtINR(parentTotal)}</span></div>\n          <div class="cat-bar"><span style="width:${(parentTotal / maxCat * 100).toFixed(1)}%"></span></div>\n          <div class="cat-detail">${childHtml}</div>\n        </div>`);
-                } else {
-                    // normal (non-parented) category
-                    const txns = (catTxns[name] || []).slice().sort((a, b) => b.withdrawal - a.withdrawal);
-                    const detail = txns.map(t => `\n          <div class="drow"><span class="ddate">${t.date.toLocaleDateString('en-GB')}</span>\n            <span class="dnarr">${t.narration}</span><span class="damt">${fmtINR(t.withdrawal)}</span></div>`).join('');
-                    ledgerParts.push(`\n        <div class="cat-block">\n          <div class="cat-row" onclick="this.closest('.cat-block').classList.toggle('open')">\n            <span class="chev">▸</span><span class="name">${name}</span><span class="leader"></span>\n            <span class="pct">${(amt / totalOut * 100).toFixed(1)}%</span><span class="amt">${fmtINR(amt)}</span></div>\n          <div class="cat-bar"><span style="width:${(amt / maxCat * 100).toFixed(1)}%"></span></div>\n          <div class="cat-detail">${detail}</div>\n        </div>`);
-                }
-            });
-            document.getElementById('categoryLedger').innerHTML = ledgerParts.join('');
+            document.getElementById('categoryLedger').innerHTML = catList.map(([name, amt]) => {
+                const txns = catTxns[name].slice().sort((a, b) => b.withdrawal - a.withdrawal);
+                const detail = txns.map(t => `
+          <div class="drow"><span class="ddate">${t.date.toLocaleDateString('en-GB')}</span>
+            <span class="dnarr">${t.narration}</span><span class="damt">${fmtINR(t.withdrawal)}</span></div>`).join('');
+                return `
+        <div class="cat-block">
+          <div class="cat-row" onclick="this.closest('.cat-block').classList.toggle('open')">
+            <span class="chev">▸</span><span class="name">${name}</span><span class="leader"></span>
+            <span class="pct">${(amt / totalOut * 100).toFixed(1)}%</span><span class="amt">${fmtINR(amt)}</span></div>
+          <div class="cat-bar"><span style="width:${(amt / maxCat * 100).toFixed(1)}%"></span></div>
+          <div class="cat-detail">${detail}</div>
+        </div>`;
+            }).join('');
 
             // top category callout
             if (catList.length) {

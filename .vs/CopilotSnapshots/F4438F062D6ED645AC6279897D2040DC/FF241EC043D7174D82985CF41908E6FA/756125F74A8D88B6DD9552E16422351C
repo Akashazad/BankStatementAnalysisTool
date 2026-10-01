@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -616,9 +616,8 @@
             // Akshat-specific badminton costs: coaching, academy and tournament fees
             ['Akshat Badminton', ['NIKHIL KANETKAR BADMINTON ACADEMY', 'AKSHAT ENTRY FEE', 'BADMINTON ACADEMY', 'AKSHAT TOURNAMENT', 'TOURNAMENT FEE','MAHARASHTRA STATE BA']],
             ['Sports & fitness', ['BADMINTON', 'PLAYO', 'DECATHLON', 'KHELOMORE','MUNJ SACHIN SHARAD','FCC']],
-            // Food & Groceries parent category with subcategories
-            ['Food & Groceries / Food & dining', ['HUNGERBOX', 'SWEETS', 'BAKERY', 'CHICKEN', 'VADAPAV', 'BHEL', 'CHAI', 'ZOMATO', 'SWIGGY', 'RESTAURANT']],
-            ['Food & Groceries / Groceries', ['MILKBASKET', 'VEGITABLE', 'VEGETABLE', 'GROCER', 'DMART', 'BIGBASKET', 'SUPER MARKET']],
+            ['Food & dining', ['HUNGERBOX', 'SWEETS', 'BAKERY', 'CHICKEN', 'VADAPAV', 'BHEL', 'CHAI', 'ZOMATO', 'SWIGGY', 'RESTAURANT']],
+            ['Groceries', ['MILKBASKET', 'VEGITABLE', 'VEGETABLE', 'GROCER', 'DMART', 'BIGBASKET', 'SUPER MARKET']],
             ['Medical / health', ['MEDICO', 'DENTAL', 'HOSPITAL', 'PHARMA', 'CLINIC', 'DIAGNOSTIC','MAHESH JANARDHAN JAW']],
             // Transportation with subcategories
             ['Transportation / Fuel', ['PETROLEUM', 'PETROL', 'FUEL']],
@@ -774,14 +773,14 @@
             });
             const catList = Object.entries(catTotals).sort((a, b) => b[1] - a[1]);
             const maxCat = catList.length ? catList[0][1] : 1;
-            // Render category ledger, grouping any parent/child categories (names with ' / ') under their parent
+            // Render category ledger, but group Transportation subcategories under a parent "Transportation" block
             const addedParents = new Set();
             const ledgerParts = [];
             catList.forEach(([name, amt]) => {
                 const parts = name.split(' / ');
-                if (parts.length > 1) {
+                if (parts.length > 1 && parts[0] === 'Transportation') {
                     const parent = parts[0];
-                    if (addedParents.has(parent)) return; // already rendered this parent and its children
+                    if (addedParents.has(parent)) return; // already rendered
                     addedParents.add(parent);
                     // collect children from catList that belong to this parent
                     const children = catList.filter(c => c[0].startsWith(parent + ' / ')).map(([cn, ca]) => ({ name: cn, amt: ca }));
@@ -793,8 +792,8 @@
                         return `\n          <div class="cat-block collapsed">\n            <div class="cat-row" onclick="this.closest('.cat-block').classList.toggle('open')">\n              <span class="chev">▸</span><span class="name">${c.name.replace(parent + ' / ', '')}</span><span class="leader"></span>\n              <span class="pct">${(c.amt / totalOut * 100).toFixed(1)}%</span><span class="amt">${fmtINR(c.amt)}</span></div>\n            <div class="cat-bar"><span style="width:${(c.amt / maxCat * 100).toFixed(1)}%"></span></div>\n            <div class="cat-detail">${detail}</div>\n          </div>`;
                     }).join('');
                     ledgerParts.push(`\n        <div class="cat-block">\n          <div class="cat-row" onclick="this.closest('.cat-block').classList.toggle('open')">\n            <span class="chev">▸</span><span class="name">${parent}</span><span class="leader"></span>\n            <span class="pct">${(parentTotal / totalOut * 100).toFixed(1)}%</span><span class="amt">${fmtINR(parentTotal)}</span></div>\n          <div class="cat-bar"><span style="width:${(parentTotal / maxCat * 100).toFixed(1)}%"></span></div>\n          <div class="cat-detail">${childHtml}</div>\n        </div>`);
-                } else {
-                    // normal (non-parented) category
+                } else if (!(parts.length > 1 && parts[0] === 'Transportation')) {
+                    // normal (non-transportation) category
                     const txns = (catTxns[name] || []).slice().sort((a, b) => b.withdrawal - a.withdrawal);
                     const detail = txns.map(t => `\n          <div class="drow"><span class="ddate">${t.date.toLocaleDateString('en-GB')}</span>\n            <span class="dnarr">${t.narration}</span><span class="damt">${fmtINR(t.withdrawal)}</span></div>`).join('');
                     ledgerParts.push(`\n        <div class="cat-block">\n          <div class="cat-row" onclick="this.closest('.cat-block').classList.toggle('open')">\n            <span class="chev">▸</span><span class="name">${name}</span><span class="leader"></span>\n            <span class="pct">${(amt / totalOut * 100).toFixed(1)}%</span><span class="amt">${fmtINR(amt)}</span></div>\n          <div class="cat-bar"><span style="width:${(amt / maxCat * 100).toFixed(1)}%"></span></div>\n          <div class="cat-detail">${detail}</div>\n        </div>`);
