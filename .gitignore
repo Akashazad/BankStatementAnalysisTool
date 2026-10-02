@@ -1,0 +1,20 @@
+# Ignore everything by default
+*
+
+# But allow directories so that exceptions can be matched
+!*/
+
+# Allow HTML files (your UI)
+!*.html
+
+# Allow README and .gitignore itself
+!.gitignore
+!README.md
+
+# If you want to allow specific assets (uncomment and list them)
+# !assets/
+# !assets/*.css
+# !assets/*.js
+
+# Note: If files were already committed before this .gitignore, you'll need to
+# remove them from the index with: git rm --cached <file> (or run the cleanup command in README.md)
