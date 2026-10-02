@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -612,16 +612,11 @@
             ['Insurance', ['POLICYBAZAAR', 'INSURANCE', ' LIC ']],
             ['Tax payment', ['CBDT','PCMC-PCMC']],
             //['Rent', ['RENT']],
-            // Credit card bill with subcategories for issuer-specific breakdown
-            ['Credit card bill / HDFC Credit Card', ['IB BILLPAY DR-HDFCSI']],
-            ['Credit card bill / ICICI Credit Card', ['AMAZONPAYCCBILLPAYMENT']],
-            ['Credit card bill / Other', ['BILLPAY', 'CCBILLPAYMENT', 'CREDIT CARD', 'CREDIT CARD PAYMENT']],
+            ['Credit card bill', ['BILLPAY', 'CCBILLPAYMENT', 'CREDIT CARD', 'ICICI BANK CREDIT CA']],
             // Sports & fitness with subcategories for clearer breakup
-            ['Sports & fitness / Coaching Fees / Badminton Coaching', ['BADMINTON', 'NIKHIL KANETKAR', 'BADMINTON ACADEMY' ]],
-            ['Sports & fitness / Coaching Fees / Swimming Coaching', ['MUNJ SACHIN SHARAD', 'SWIMMING COACH']],
-            ['Sports & fitness / Tournament Entry Fees', ['ENTRY FEE', 'TOURNAMENT', 'TOURNAMENT FEE', 'AKSHAT ENTRY FEE', 'AKSHAT TOURNAMENT', 'MAHARASHTRA STATE','ASHIMA SWIM TOURNA']],
-            ['Sports & fitness / Equipment Purchase', ['DECATHLON', 'RACKET', 'SHOES', 'EQUIPMENT', 'KIT', 'SPORTS STORE', ]],
-            ['Sports & fitness / Venue Booking', ['BOOKING', 'BOOKED', 'VENUE', 'COURT BOOKING', 'GROUND', 'HIRE', 'HALL', 'PLAYO', 'KHELOMORE']],
+            ['Sports & fitness / Coaching Fees', ['BADMINTON', 'NIKHIL KANETKAR', 'BADMINTON ACADEMY', 'COACH', 'COACHING', 'PLAYO', 'MUNJ SACHIN SHARAD']],
+            ['Sports & fitness / Tournament Entry Fees', ['ENTRY FEE', 'TOURNAMENT', 'TOURNAMENT FEE', 'AKSHAT ENTRY FEE', 'AKSHAT TOURNAMENT', 'MAHARASHTRA STATE']],
+            ['Sports & fitness / Equipment Purchase', ['DECATHLON', 'RACKET', 'SHOES', 'EQUIPMENT', 'KIT', 'SPORTS STORE', 'KHELOMORE']],
             // Food & Groceries parent category with subcategories
             ['Food & Groceries / Food & dining', ['HUNGERBOX', 'SWEETS', 'BAKERY', 'CHICKEN', 'VADAPAV', 'BHEL', 'CHAI', 'ZOMATO', 'SWIGGY', 'RESTAURANT']],
             ['Food & Groceries / Groceries / Milk Basket', ['MILKBASKET']],

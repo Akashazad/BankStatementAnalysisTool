@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -612,21 +612,13 @@
             ['Insurance', ['POLICYBAZAAR', 'INSURANCE', ' LIC ']],
             ['Tax payment', ['CBDT','PCMC-PCMC']],
             //['Rent', ['RENT']],
-            // Credit card bill with subcategories for issuer-specific breakdown
-            ['Credit card bill / HDFC Credit Card', ['IB BILLPAY DR-HDFCSI']],
-            ['Credit card bill / ICICI Credit Card', ['AMAZONPAYCCBILLPAYMENT']],
-            ['Credit card bill / Other', ['BILLPAY', 'CCBILLPAYMENT', 'CREDIT CARD', 'CREDIT CARD PAYMENT']],
-            // Sports & fitness with subcategories for clearer breakup
-            ['Sports & fitness / Coaching Fees / Badminton Coaching', ['BADMINTON', 'NIKHIL KANETKAR', 'BADMINTON ACADEMY' ]],
-            ['Sports & fitness / Coaching Fees / Swimming Coaching', ['MUNJ SACHIN SHARAD', 'SWIMMING COACH']],
-            ['Sports & fitness / Tournament Entry Fees', ['ENTRY FEE', 'TOURNAMENT', 'TOURNAMENT FEE', 'AKSHAT ENTRY FEE', 'AKSHAT TOURNAMENT', 'MAHARASHTRA STATE','ASHIMA SWIM TOURNA']],
-            ['Sports & fitness / Equipment Purchase', ['DECATHLON', 'RACKET', 'SHOES', 'EQUIPMENT', 'KIT', 'SPORTS STORE', ]],
-            ['Sports & fitness / Venue Booking', ['BOOKING', 'BOOKED', 'VENUE', 'COURT BOOKING', 'GROUND', 'HIRE', 'HALL', 'PLAYO', 'KHELOMORE']],
+            ['Credit card bill', ['BILLPAY', 'CCBILLPAYMENT', 'CREDIT CARD', 'ICICI BANK CREDIT CA']],
+            // Akshat-specific badminton costs: coaching, academy and tournament fees
+            ['Akshat Badminton', ['NIKHIL KANETKAR BADMINTON ACADEMY', 'AKSHAT ENTRY FEE', 'BADMINTON ACADEMY', 'AKSHAT TOURNAMENT', 'TOURNAMENT FEE','MAHARASHTRA STATE BA']],
+            ['Sports & fitness', ['BADMINTON', 'PLAYO', 'DECATHLON', 'KHELOMORE','MUNJ SACHIN SHARAD','FCC']],
             // Food & Groceries parent category with subcategories
             ['Food & Groceries / Food & dining', ['HUNGERBOX', 'SWEETS', 'BAKERY', 'CHICKEN', 'VADAPAV', 'BHEL', 'CHAI', 'ZOMATO', 'SWIGGY', 'RESTAURANT']],
-            ['Food & Groceries / Groceries / Milk Basket', ['MILKBASKET']],
-            ['Food & Groceries / Groceries / Dmart', ['DMART']],
-            ['Food & Groceries / Groceries / Other', ['VEGITABLE', 'VEGETABLE', 'GROCER', 'BIGBASKET', 'SUPER MARKET', 'GROCERY', 'GROCERIES', 'UPI-SAMEER CHICKEN','UPI-NEW DIAMOND BAKERY']],
+            ['Food & Groceries / Groceries', ['MILKBASKET', 'VEGITABLE', 'VEGETABLE', 'GROCER', 'DMART', 'BIGBASKET', 'SUPER MARKET']],
             ['Medical / health', ['MEDICO', 'DENTAL', 'HOSPITAL', 'PHARMA', 'CLINIC', 'DIAGNOSTIC','MAHESH JANARDHAN JAW']],
             // Transportation with subcategories
             ['Transportation / Fuel', ['PETROLEUM', 'PETROL', 'FUEL']],
@@ -746,8 +738,8 @@
 
         function renderStatsAndLedger() {
             const rows = filteredRows();
-            // incoming total: sum only categories under the Income parent (e.g. 'Income / Salary', 'Income / Rental Income', 'Income / Interest')
-            const totalIn = rows.filter(r => r.deposit > 0 && String(r.category).startsWith('Income / ')).reduce((s, r) => s + r.deposit, 0);
+            // incoming total excluding pass-through credits and investment redemptions
+            const totalIn = rows.reduce((s, r) => s + (EXCLUDE_INCOME_CATS.includes(r.category) ? 0 : r.deposit), 0);
             const invested = rows.filter(r => r.category === INVEST_CAT).reduce((s, r) => s + r.withdrawal, 0);
             const spendRows = rows.filter(r => r.withdrawal > 0 && r.category !== INVEST_CAT);
             const totalOut = spendRows.reduce((s, r) => s + r.withdrawal, 0);
@@ -801,35 +793,13 @@
                     if (addedParents.has(parent)) return; // already rendered this parent and its children
                     addedParents.add(parent);
                     // collect children from catList that belong to this parent
-                    const rawChildren = catList.filter(c => c[0].startsWith(parent + ' / ')).map(([cn, ca]) => ({ name: cn, amt: ca }));
-                    const parentTotal = rawChildren.reduce((s, c) => s + c.amt, 0);
-                    // Group children by the next segment after the parent (to allow one deeper level like 'Groceries -> Milk Basket / Dmart')
-                    const groupMap = {};
-                    rawChildren.forEach(c => {
-                        const childName = c.name.replace(parent + ' / ', '');
-                        const parts2 = childName.split(' / ');
-                        const head = parts2[0];
-                        const tail = parts2.slice(1).join(' / '); // may be empty
-                        (groupMap[head] = groupMap[head] || []).push({ fullName: c.name, head, tail, amt: c.amt });
-                    });
-                    const childHtml = Object.keys(groupMap).map(head => {
-                        const items = groupMap[head];
-                        if (items.some(it => it.tail)) {
-                            // render head as a sub-parent with its children (tail values)
-                            const subChildrenHtml = items.map(it => {
-                                const txns = (catTxns[it.fullName] || []).slice().sort((a, b) => b.withdrawal - a.withdrawal);
-                                const detail = txns.map(t => `\n            <div class="drow"><span class="ddate">${t.date.toLocaleDateString('en-GB')}</span>\n              <span class="dnarr">${t.narration}</span><span class="damt">${fmtINR(t.withdrawal)}</span></div>`).join('');
-                                const subName = it.tail || it.head;
-                                return `\n          <div class="cat-block collapsed">\n            <div class="cat-row" onclick="this.closest('.cat-block').classList.toggle('open')">\n              <span class="chev">▸</span><span class="name">${subName}</span><span class="leader"></span>\n              <span class="pct">${(it.amt / totalOut * 100).toFixed(1)}%</span><span class="amt">${fmtINR(it.amt)}</span></div>\n            <div class="cat-bar"><span style="width:${(it.amt / maxCat * 100).toFixed(1)}%"></span></div>\n            <div class="cat-detail">${detail}</div>\n          </div>`;
-                            }).join('');
-                            return `\n        <div class="cat-block">\n          <div class="cat-row" onclick="this.closest('.cat-block').classList.toggle('open')">\n            <span class="chev">▸</span><span class="name">${head}</span><span class="leader"></span>\n            <span class="pct">${(items.reduce((s,i)=>s+i.amt,0) / totalOut * 100).toFixed(1)}%</span><span class="amt">${fmtINR(items.reduce((s,i)=>s+i.amt,0))}</span></div>\n          <div class="cat-bar"><span style="width:${(items.reduce((s,i)=>s+i.amt,0) / maxCat * 100).toFixed(1)}%"></span></div>\n          <div class="cat-detail">${subChildrenHtml}</div>\n        </div>`;
-                        } else {
-                            // simple child (no deeper level)
-                            const it = items[0];
-                            const txns = (catTxns[it.fullName] || []).slice().sort((a, b) => b.withdrawal - a.withdrawal);
-                            const detail = txns.map(t => `\n            <div class="drow"><span class="ddate">${t.date.toLocaleDateString('en-GB')}</span>\n              <span class="dnarr">${t.narration}</span><span class="damt">${fmtINR(t.withdrawal)}</span></div>`).join('');
-                            return `\n          <div class="cat-block collapsed">\n            <div class="cat-row" onclick="this.closest('.cat-block').classList.toggle('open')">\n              <span class="chev">▸</span><span class="name">${head}</span><span class="leader"></span>\n              <span class="pct">${(it.amt / totalOut * 100).toFixed(1)}%</span><span class="amt">${fmtINR(it.amt)}</span></div>\n            <div class="cat-bar"><span style="width:${(it.amt / maxCat * 100).toFixed(1)}%"></span></div>\n            <div class="cat-detail">${detail}</div>\n          </div>`;
-                        }
+                    const children = catList.filter(c => c[0].startsWith(parent + ' / ')).map(([cn, ca]) => ({ name: cn, amt: ca }));
+                    const parentTotal = children.reduce((s, c) => s + c.amt, 0);
+                    const childHtml = children.map(c => {
+                        const txns = (catTxns[c.name] || []).slice().sort((a, b) => b.withdrawal - a.withdrawal);
+                        const detail = txns.map(t => `\n            <div class="drow"><span class="ddate">${t.date.toLocaleDateString('en-GB')}</span>\n              <span class="dnarr">${t.narration}</span><span class="damt">${fmtINR(t.withdrawal)}</span></div>`).join('');
+                        // render child subcategory collapsed by default (adds 'collapsed' class)
+                        return `\n          <div class="cat-block collapsed">\n            <div class="cat-row" onclick="this.closest('.cat-block').classList.toggle('open')">\n              <span class="chev">▸</span><span class="name">${c.name.replace(parent + ' / ', '')}</span><span class="leader"></span>\n              <span class="pct">${(c.amt / totalOut * 100).toFixed(1)}%</span><span class="amt">${fmtINR(c.amt)}</span></div>\n            <div class="cat-bar"><span style="width:${(c.amt / maxCat * 100).toFixed(1)}%"></span></div>\n            <div class="cat-detail">${detail}</div>\n          </div>`;
                     }).join('');
                     ledgerParts.push(`\n        <div class="cat-block">\n          <div class="cat-row" onclick="this.closest('.cat-block').classList.toggle('open')">\n            <span class="chev">▸</span><span class="name">${parent}</span><span class="leader"></span>\n            <span class="pct">${(parentTotal / totalOut * 100).toFixed(1)}%</span><span class="amt">${fmtINR(parentTotal)}</span></div>\n          <div class="cat-bar"><span style="width:${(parentTotal / maxCat * 100).toFixed(1)}%"></span></div>\n          <div class="cat-detail">${childHtml}</div>\n        </div>`);
                 } else {
@@ -907,8 +877,7 @@
             rows.forEach(r => {
                 const k = monthKey(r.date);
                 if (!(k in mIn)) return;
-                // 'Money in' should count only Income/* categories
-                if (String(r.category).startsWith('Income / ')) mIn[k] += r.deposit;
+                if (!EXCLUDE_INCOME_CATS.includes(r.category)) mIn[k] += r.deposit;
                 if (r.category === INVEST_CAT) {
                     mInv[k] += r.withdrawal; // invested amounts (withdrawals to investments)
                 } else {
