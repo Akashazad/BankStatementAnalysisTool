@@ -605,29 +605,29 @@
 const FCC_COLLECTION_NAMES = ['AMOL', 'HARSHIT', 'ROHAN', 'ROHIT', 'HIMANSHU', 'SHIKHAR', 'SHREYAS', 'SHAH NIKET', 'DEEPAK KUMAR MEHTO', 'GHEEWALA DIVYANG', 'ARVIND SURESH PEDNEK', 'NISHANT KUMAR', 'SHOAIB SAUDAGAR', 'KINJAN KUMAR GINOYA', 'PANDYA KARAN','SHAH NIKET']; // FCC monthly collection senders
         const FCC_COLLECTION_AMOUNT = 1000; // amount that identifies an FCC collection payment
 
-        const EXPENSE_RULES = [
-            [INVEST_CAT, ['NSEINVEST', 'NSECLEARING', 'MFSS', 'MUTUAL FU', 'PPFAS', 'ZERODAH', 'SIPINDIA', 'MUTUAL', 'HDFC MU', 'HDFCMF', 'UTIMF', 'FRANKLIN','HDFC-SIP']],
-            ['School canteen (kids)', ['FOOD CRAFT COMPANY']],
-            ['Family transfers', [FAMILY_NAMES, 'NET BANKING SI', 'IB FUNDS TRANSFER','NEW KIDS AC ASHIMA AKASH SHRIVASTAV']],
-            ['Insurance', ['POLICYBAZAAR', 'INSURANCE', ' LIC ']],
-            ['Tax payment', ['CBDT','PCMC-PCMC']],
-            //['Rent', ['RENT']],
-            // Credit card bill with subcategories for issuer-specific breakdown
-            ['Credit card bill / HDFC Credit Card', ['IB BILLPAY DR-HDFCSI']],
-            ['Credit card bill / ICICI Credit Card', ['AMAZONPAYCCBILLPAYMENT']],
-            ['Credit card bill / Other', ['BILLPAY', 'CCBILLPAYMENT', 'CREDIT CARD', 'CREDIT CARD PAYMENT']],
-            // Sports & fitness with subcategories for clearer breakup
-            ['Sports & fitness / Coaching Fees / Badminton Coaching', ['BADMINTON','BHALEKAR.AKASH', 'NIKHIL KANETKAR', 'BADMINTON ACADEMY' ]],
-            ['Sports & fitness / Coaching Fees / Swimming Coaching', ['MUNJ SACHIN SHARAD', 'SWIMMING COACH']],
-            ['Sports & fitness / Tournament Entry Fees', ['ENTRY FEE', 'TOURNAMENT', 'TOURNAMENT FEE', 'AKSHAT ENTRY FEE', 'AKSHAT TOURNAMENT', 'MAHARASHTRA STATE','ASHIMA SWIM TOURNA']],
-            ['Sports & fitness / Cricket Match Fees', ['CRICKET', 'MATCH FEE', 'MATCH FEES', 'CRICKET MATCH', 'CRICKET FEE','UPI-SHAH NIKET']],
-            ['Sports & fitness / Equipment Purchase', ['DECATHLON', 'RACKET', 'SHOES', 'EQUIPMENT', 'KIT', 'SPORTS STORE', ]],
-            ['Sports & fitness / Venue Booking', ['BOOKING', 'BOOKED', 'VENUE', 'COURT BOOKING', 'GROUND', 'HIRE', 'HALL', 'PLAYO', 'KHELOMORE','FLY16 KEEP FLYING']],
-            // Food & Groceries parent category with subcategories
-            ['Food & Groceries / Food & dining', ['HUNGERBOX', 'SWEETS', 'BAKERY', 'CHICKEN', 'VADAPAV', 'BHEL', 'TEA', 'ZOMATO', 'SWIGGY', 'RESTAURANT', 'KANNU KI CHAI', 'HOTEL', 'FAMOUS KULFI AND RAB', 'PIZZA TOONS', 'THE GRAND PUROHIT', 'IRANI CAFE', 'PUNJABIAMRITSARIKULC', 'CHITALE BANDHU MITHA','MUKESH WINES']],
-            ['Food & Groceries / Groceries / Milk Basket', ['MILKBASKET']],
-            ['Food & Groceries / Groceries / Dmart', ['DMART']],
-            ['Food & Groceries / Groceries / Other', ['BAKERS', 'VEGITABLE', 'VEGETABLE', 'GROCER', 'BIGBASKET', 'SUPER MARKET', 'GROCERY', 'GROCERIES', 'UPI-SAMEER CHICKEN', 'UPI-NEW DIAMOND BAKERY', 'DRYFRUITS GALLERY', 'FRUIT', 'FRUITS', 'BARAMATI AGRO CHICKE','STAR BAZAAR']],
+const EXPENSE_RULES = [
+    [INVEST_CAT, ['NSEINVEST', 'NSECLEARING', 'MFSS', 'MUTUAL FU', 'PPFAS', 'ZERODAH', 'SIPINDIA', 'MUTUAL', 'HDFC MU', 'HDFCMF', 'UTIMF', 'FRANKLIN', 'HDFC-SIP']],
+    ['School canteen (kids)', ['FOOD CRAFT COMPANY']],
+    ['Family transfers', [FAMILY_NAMES, 'NET BANKING SI', 'IB FUNDS TRANSFER', 'NEW KIDS AC ASHIMA AKASH SHRIVASTAV']],
+    ['Insurance', ['POLICYBAZAAR', 'INSURANCE', ' LIC ']],
+    ['Tax payment', ['CBDT', 'PCMC-PCMC']],
+    //['Rent', ['RENT']],
+    // Credit card bill with subcategories for issuer-specific breakdown
+    ['Credit card bill / HDFC Credit Card', ['IB BILLPAY DR-HDFCSI']],
+    ['Credit card bill / ICICI Credit Card', ['AMAZONPAYCCBILLPAYMENT']],
+    ['Credit card bill / Other', ['BILLPAY', 'CCBILLPAYMENT', 'CREDIT CARD', 'CREDIT CARD PAYMENT']],
+    // Sports & fitness with subcategories for clearer breakup
+    ['Sports & fitness / Coaching Fees / Badminton Coaching', ['BADMINTON', 'BHALEKAR.AKASH', 'NIKHIL KANETKAR', 'BADMINTON ACADEMY']],
+    ['Sports & fitness / Coaching Fees / Swimming Coaching', ['MUNJ SACHIN SHARAD', 'SWIMMING COACH']],
+    ['Sports & fitness / Tournament Entry Fees', ['ENTRY FEE', 'TOURNAMENT', 'TOURNAMENT FEE', 'AKSHAT ENTRY FEE', 'AKSHAT TOURNAMENT', 'MAHARASHTRA STATE', 'ASHIMA SWIM TOURNA']],
+    ['Sports & fitness / Cricket Match Fees', ['CRICKET', 'MATCH FEE', 'MATCH FEES', 'CRICKET MATCH', 'CRICKET FEE', 'UPI-SHAH NIKET']],
+    ['Sports & fitness / Equipment Purchase', ['DECATHLON', 'RACKET', 'SHOES', 'EQUIPMENT', 'KIT', 'SPORTS STORE',]],
+    ['Sports & fitness / Venue Booking', ['BOOKING', 'BOOKED', 'COURT BOOKING', 'GROUND', 'HIRE', 'HALL', 'PLAYO', 'KHELOMORE', 'FLY16 KEEP FLYING']],
+    // Food & Groceries parent category with subcategories
+    ['Food & Groceries / Food & dining', ['HUNGERBOX', 'SWEETS', 'BAKERY', 'CHICKEN', 'VADAPAV', 'BHEL', 'TEA', 'ZOMATO', 'SWIGGY', 'RESTAURANT', 'KANNU KI CHAI', 'HOTEL', 'FAMOUS KULFI AND RAB', 'PIZZA TOONS', 'THE GRAND PUROHIT', 'IRANI CAFE', 'PUNJABIAMRITSARIKULC', 'CHITALE BANDHU MITHA', 'MUKESH WINES', 'DINNER', 'ROLLEATUP', 'DHOKLA HOUSE SWEET', 'INDORI POHA', 'DAVANGIRI DOSA', 'KAMAL SUGARCANE JUIC', 'CAFE','PANIPURI']],
+    ['Food & Groceries / Groceries / Milk Basket', ['MILKBASKET']],
+    ['Food & Groceries / Groceries / Dmart', ['DMART','SUPERMARTS']],
+    ['Food & Groceries / Groceries / Other', ['BAKERS', 'VEGITABLE', 'VEGETABLE', 'GROCER', 'BIGBASKET', 'SUPER MARKET', 'GROCERY', 'GROCERIES', 'UPI-SAMEER CHICKEN', 'UPI-NEW DIAMOND BAKERY', 'DRYFRUITS GALLERY', 'FRUIT', 'FRUITS', 'BARAMATI AGRO CHICKE', 'STAR BAZAAR','GROSSERY']],
 
             ['Medical / health', ['MEDICO', 'DENTAL', 'HOSPITAL', 'PHARMA', 'CLINIC', 'DIAGNOSTIC', 'MAHESH JANARDHAN JAW', 'MEDICAL', 'CHEMIST','WELLNESS FOREVER']],
             // Transportation with subcategories
