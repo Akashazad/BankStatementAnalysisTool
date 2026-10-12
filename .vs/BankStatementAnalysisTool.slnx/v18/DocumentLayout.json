@@ -3,16 +3,16 @@
   "WorkspaceRootPath": "D:\\Akash\\GitHub\\BankStatementAnalysisTool\\BankStatementAnalysisTool\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Akash\\GitHub\\BankStatementAnalysisTool\\BankStatementAnalysisTool\\index.html||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:index.html||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Akash\\GitHub\\BankStatementAnalysisTool\\BankStatementAnalysisTool\\README.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}",
       "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:README.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Akash\\GitHub\\BankStatementAnalysisTool\\BankStatementAnalysisTool\\.gitignore||{3B902123-F8A7-4915-9F01-361F908088D0}",
       "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:.gitignore||{3B902123-F8A7-4915-9F01-361F908088D0}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Akash\\GitHub\\BankStatementAnalysisTool\\BankStatementAnalysisTool\\index.html||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:index.html||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     }
   ],
   "DocumentGroupContainers": [
@@ -22,11 +22,11 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 0,
+          "SelectedChildIndex": 2,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
               "Title": "README.md",
               "DocumentMoniker": "D:\\Akash\\GitHub\\BankStatementAnalysisTool\\BankStatementAnalysisTool\\README.md",
               "RelativeDocumentMoniker": "README.md",
@@ -39,7 +39,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 2,
               "Title": ".gitignore",
               "DocumentMoniker": "D:\\Akash\\GitHub\\BankStatementAnalysisTool\\BankStatementAnalysisTool\\.gitignore",
               "RelativeDocumentMoniker": ".gitignore",
@@ -47,18 +47,17 @@
               "RelativeToolTip": ".gitignore",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAkAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2026-10-02T13:44:00.06Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-10-02T13:44:00.06Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 0,
               "Title": "index.html",
               "DocumentMoniker": "D:\\Akash\\GitHub\\BankStatementAnalysisTool\\BankStatementAnalysisTool\\index.html",
               "RelativeDocumentMoniker": "index.html",
               "ToolTip": "D:\\Akash\\GitHub\\BankStatementAnalysisTool\\BankStatementAnalysisTool\\index.html",
               "RelativeToolTip": "index.html",
-              "ViewState": "AgIAAHoCAAAAAAAAAAAWwIwCAAAKAAAAAAAAAA==",
+              "ViewState": "AgIAAHwCAAAA/P////8rwIsCAACOAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001512|",
               "WhenOpened": "2026-10-01T14:29:37.186Z",
               "EditorCaption": ""
